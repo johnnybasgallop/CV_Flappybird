@@ -1,0 +1,9 @@
+# Virtual environment directories
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+music-venv/
