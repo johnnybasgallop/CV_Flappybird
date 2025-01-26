@@ -14,7 +14,6 @@ def load_sprites():
 
 
 def get_sprite(name):
-    print(f"Trying to access: assets.sprites['{name}']")
     return sprites[name]
 
 
