@@ -38,9 +38,10 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
-screen = pygame.display.set_mode((configs.SCREEN_WIDTH, configs.SCREEN_HEIGHT))
+screen = pygame.display.set_mode(
+    (configs.SCREEN_WIDTH, configs.SCREEN_HEIGHT))
 
-pygame.display.set_caption("Flappy Bird Game v1.0.2")
+pygame.display.set_caption("Hand-Flappy Bird")
 
 img = pygame.image.load('assets/icons/red_bird.png')
 pygame.display.set_icon(img)
