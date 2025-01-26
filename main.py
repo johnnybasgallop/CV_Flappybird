@@ -18,22 +18,15 @@ from objects.gamestart_message import GameStartMessage
 from objects.retry import RetryButton
 from objects.score import Score
 
-# --- Configuration for Hand Tracking ---
-MIN_DISTANCE = 0.07  # Minimum distance (for minimum jump interval)
-MAX_DISTANCE = 0.5  # Maximum distance (for maximum jump interval)
-MAX_JUMP_INTERVAL = 0.01  # Maximum seconds between jumps at MAX_DISTANCE
+MIN_DISTANCE = 0.07
+MAX_DISTANCE = 0.5
+MAX_JUMP_INTERVAL = 0.01
 MIN_JUMP_INTERVAL = 2
 
 
-# pipe_gap = 250
-# pipe_velocity = -2  # Minimum seconds between jumps at MIN_DISTANCE
-
-
-# --- Initialize Pygame ---
 pygame.init()
 
 
-# --- MediaPipe Hands Setup ---
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
@@ -59,18 +52,16 @@ sprites = pygame.sprite.LayeredUpdates()
 
 retry_button_image = assets.get_sprite("retry")
 retry_button = RetryButton(sprites)
-retry_button.kill()  # Initially hide the button
-
-# --- Function to Reset the Game ---
+retry_button.kill()
 
 
 def reset_game():
     global gameover, gamestarted, sprites, bird, game_start_message, score, last_jump_time
     gameover = False
     gamestarted = False
-    sprites.empty()  # Clear all existing sprites
-    bird, game_start_message, score = create_sprites()  # Create new sprites
-    last_jump_time = time.time()  # Reset jump timer
+    sprites.empty()
+    bird, game_start_message, score = create_sprites()
+    last_jump_time = time.time()
     retry_button.kill()
 
 
@@ -86,11 +77,11 @@ def create_sprites():
 
 bird, game_start_message, score = create_sprites()
 
-# --- Auto-Jump Variables ---
-jump_interval = MAX_JUMP_INTERVAL  # Initial jump interval (in seconds)
+
+jump_interval = MAX_JUMP_INTERVAL
 last_jump_time = time.time()
 
-# --- Initialize video capture ---
+
 cap = cv2.VideoCapture(0)
 
 with mp_hands.Hands(
@@ -119,7 +110,6 @@ with mp_hands.Hands(
                     sprites.empty()
                     bird, game_start_message, score = create_sprites()
 
-        # --- Hand Tracking ---
         success, image = cap.read()
         if success:
             image.flags.writeable = False
@@ -139,25 +129,20 @@ with mp_hands.Hands(
                     distance = math.hypot(
                         index_tip.x - thumb_tip.x, index_tip.y - thumb_tip.y)
 
-                    # --- Calculate Pixel Coordinates and Draw ---
                     image_height, image_width, _ = image.shape
                     thumb_px = (int(thumb_tip.x * image_width),
                                 int(thumb_tip.y * image_height))
                     index_px = (int(index_tip.x * image_width),
                                 int(index_tip.y * image_height))
 
-                    # Draw a line between the thumb tip and index finger tip
                     cv2.line(image, thumb_px, index_px, (255, 0, 0), 2)
 
-                    # Calculate midpoint for text placement
                     midpoint_x = int((thumb_px[0] + index_px[0]) / 2)
                     midpoint_y = int((thumb_px[1] + index_px[1]) / 2)
 
-                    # Display distance on screen above the midpoint
                     cv2.putText(image, f"Distance: {distance:.2f}", (midpoint_x, midpoint_y - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-                    # Draw landmarks and connections
                     mp_drawing.draw_landmarks(
                         image,
                         hand_landmarks,
@@ -166,23 +151,19 @@ with mp_hands.Hands(
                             color=(255, 255, 255), thickness=10, circle_radius=2),
                         mp_drawing_styles.get_default_hand_connections_style())
 
-            # --- Map Distance to Jump Interval (Corrected) ---
             if distance > MIN_DISTANCE:
                 jump_interval = np.interp(distance, [MIN_DISTANCE, MAX_DISTANCE], [
                                           MIN_JUMP_INTERVAL, MAX_JUMP_INTERVAL])
             else:
                 jump_interval = 10
 
-            # --- Display the Image ---
             cv2.imshow('MediaPipe Hands', image)
 
-        # --- Auto-Jump Logic ---
         current_time = time.time()
         if gamestarted and not gameover and (current_time - last_jump_time >= jump_interval):
             bird.jump()
             last_jump_time = current_time
 
-        # --- Game Logic ---
         screen.fill(0)
         sprites.draw(screen)
 
@@ -211,7 +192,7 @@ with mp_hands.Hands(
         if cv2.waitKey(5) & 0xFF == 27:
             break
 
-# --- Cleanup ---
+
 cap.release()
 cv2.destroyAllWindows()
 pygame.quit()

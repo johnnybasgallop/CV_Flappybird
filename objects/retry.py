@@ -14,8 +14,8 @@ class RetryButton(pygame.sprite.Sprite):
             center=(configs.SCREEN_WIDTH / 2, configs.SCREEN_HEIGHT / 1.5))
 
     def update(self, game_reset_callback):
-        # Check for mouse click within the button's boundaries
+
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
-            if pygame.mouse.get_pressed()[0]:  # Left mouse button clicked
+            if pygame.mouse.get_pressed()[0]:
                 game_reset_callback()

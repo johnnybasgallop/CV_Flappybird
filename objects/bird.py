@@ -46,7 +46,7 @@ class Bird(pygame.sprite.Sprite):
 
     def jump(self):
         self.flap = 0
-        self.flap -= 8  # Or whatever value you use for the upward jump impulse
+        self.flap -= 8
         assets.play_audio("wing")
 
     def reset_position(self):
