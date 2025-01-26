@@ -15,6 +15,7 @@ from objects.column import Column
 from objects.floor import Floor
 from objects.gameover_message import GameOverMessage
 from objects.gamestart_message import GameStartMessage
+from objects.retry import RetryButton
 from objects.score import Score
 
 # --- Configuration for Hand Tracking ---
@@ -23,11 +24,14 @@ MAX_DISTANCE = 0.5  # Maximum distance (for maximum jump interval)
 MAX_JUMP_INTERVAL = 0.01  # Maximum seconds between jumps at MAX_DISTANCE
 MIN_JUMP_INTERVAL = 2
 
+
 # pipe_gap = 250
 # pipe_velocity = -2  # Minimum seconds between jumps at MIN_DISTANCE
 
+
 # --- Initialize Pygame ---
 pygame.init()
+
 
 # --- MediaPipe Hands Setup ---
 mp_drawing = mp.solutions.drawing_utils
@@ -51,6 +55,22 @@ assets.load_sprites()
 assets.load_audios()
 
 sprites = pygame.sprite.LayeredUpdates()
+
+retry_button_image = assets.get_sprite("retry")
+retry_button = RetryButton(sprites)
+retry_button.kill()  # Initially hide the button
+
+# --- Function to Reset the Game ---
+
+
+def reset_game():
+    global gameover, gamestarted, sprites, bird, game_start_message, score, last_jump_time
+    gameover = False
+    gamestarted = False
+    sprites.empty()  # Clear all existing sprites
+    bird, game_start_message, score = create_sprites()  # Create new sprites
+    last_jump_time = time.time()  # Reset jump timer
+    retry_button.kill()
 
 
 def create_sprites():
@@ -171,9 +191,13 @@ with mp_hands.Hands(
         if bird.check_collision(sprites) and not gameover:
             gameover = True
             gamestarted = False
+            RetryButton(sprites)
             GameOverMessage(sprites)
             pygame.time.set_timer(column_create_event, 0)
             assets.play_audio("hit")
+
+        if gameover:
+            retry_button.update(reset_game)
 
         for sprite in sprites:
             if type(sprite) is Column and sprite.is_passed():
